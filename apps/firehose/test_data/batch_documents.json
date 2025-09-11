@@ -1,0 +1,35 @@
+[
+  {
+    "id": "user001",
+    "name": "Alice Smith",
+    "email": "alice@example.com",
+    "role": "admin",
+    "created": "2024-01-10T08:00:00Z"
+  },
+  {
+    "id": "user002",
+    "name": "Bob Johnson",
+    "email": "bob@example.com",
+    "role": "developer",
+    "created": "2024-01-11T09:00:00Z"
+  },
+  {
+    "id": "user003",
+    "name": "Carol White",
+    "email": "carol@example.com",
+    "role": "designer",
+    "created": "2024-01-12T10:00:00Z"
+  },
+  {
+    "name": "David Brown",
+    "email": "david@example.com",
+    "role": "manager",
+    "created": "2024-01-13T11:00:00Z"
+  },
+  {
+    "name": "Eve Davis",
+    "email": "eve@example.com",
+    "role": "developer",
+    "created": "2024-01-14T12:00:00Z"
+  }
+]

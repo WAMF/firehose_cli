@@ -1,0 +1,58 @@
+{
+  "users": {
+    "id field name": "userId",
+    "data": [
+      {
+        "userId": "u001",
+        "name": "Admin User",
+        "email": "admin@company.com",
+        "role": "super-admin"
+      },
+      {
+        "userId": "u002",
+        "name": "Regular User",
+        "email": "user@company.com",
+        "role": "member"
+      }
+    ]
+  },
+  "products": {
+    "id field name": "sku",
+    "data": [
+      {
+        "sku": "PROD-001",
+        "name": "Widget Pro",
+        "price": 99.99,
+        "stock": 100,
+        "category": "electronics"
+      },
+      {
+        "sku": "PROD-002",
+        "name": "Gadget Plus",
+        "price": 149.99,
+        "stock": 50,
+        "category": "electronics"
+      },
+      {
+        "name": "Basic Item",
+        "price": 19.99,
+        "stock": 200,
+        "category": "accessories"
+      }
+    ]
+  },
+  "settings/app/config": {
+    "data": [
+      {
+        "key": "theme",
+        "value": "dark",
+        "updatedAt": "2024-01-15T10:00:00Z"
+      },
+      {
+        "key": "language",
+        "value": "en",
+        "updatedAt": "2024-01-15T10:00:00Z"
+      }
+    ]
+  }
+}

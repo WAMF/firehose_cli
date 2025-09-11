@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        sdk: ['^3.7.2']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: dart-lang/setup-dart@v1
+      with:
+        sdk: ${{ matrix.sdk }}
+    
+    - name: Install dependencies
+      run: dart pub get
+    
+    - name: Verify formatting
+      run: dart format --output=none --set-exit-if-changed .
+    
+    - name: Analyze project source
+      run: dart analyze --fatal-infos
+    
+    - name: Run unit tests
+      run: dart test test/unit
+    
+    - name: Install Firebase Emulator
+      run: |
+        npm install -g firebase-tools
+        firebase setup:emulators:firestore
+    
+    - name: Run integration tests
+      run: |
+        firebase emulators:exec --only firestore --project test-project \
+          "dart test test/integration"
+      env:
+        FIRESTORE_EMULATOR_HOST: localhost:8090
+        FIREHOSE_PROJECT_ID: test-project
+
+  coverage:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: dart-lang/setup-dart@v1
+      with:
+        sdk: '^3.7.2'
+    
+    - name: Install dependencies
+      run: dart pub get
+    
+    - name: Install coverage tools
+      run: dart pub global activate coverage
+    
+    - name: Run tests with coverage
+      run: dart test --coverage=coverage test/unit
+    
+    - name: Format coverage
+      run: dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: coverage/lcov.info
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  publish-dry-run:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: dart-lang/setup-dart@v1
+      with:
+        sdk: '^3.7.2'
+    
+    - name: Install dependencies
+      run: dart pub get
+    
+    - name: Check package score
+      run: dart pub global activate pana && dart pub global run pana --no-warning
+    
+    - name: Dry run publish
+      run: dart pub publish --dry-run

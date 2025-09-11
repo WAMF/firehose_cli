@@ -1,0 +1,14 @@
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "age": 30,
+  "active": true,
+  "created": "2024-01-15T10:30:00Z",
+  "tags": ["developer", "team-lead"],
+  "address": {
+    "street": "123 Main St",
+    "city": "San Francisco",
+    "state": "CA",
+    "zip": "94102"
+  }
+}

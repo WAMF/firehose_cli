@@ -1,0 +1,65 @@
+name: firehose_cli
+repository: https://github.com/your-org/firehose_cli
+
+packages:
+  - apps/**
+
+scripts:
+  analyze:
+    run: melos exec -- dart analyze --fatal-infos
+    description: Run static analysis on all packages
+
+  format:
+    run: melos exec -- dart format .
+    description: Format all packages
+
+  format:check:
+    run: melos exec -- dart format . --set-exit-if-changed
+    description: Check if all packages are formatted
+
+  test:
+    run: melos run test:unit && melos run test:integration
+    description: Run all tests sequentially
+
+  test:unit:
+    run: melos exec --concurrency 1 -- dart test test/unit
+    description: Run unit tests only
+    packageFilters:
+      dirExists: test/unit
+
+  test:integration:
+    run: |
+      cd apps/firehose && \
+      firebase emulators:exec --only firestore --project test-project \
+      "dart test test/integration_test.dart --concurrency=1"
+    description: Run integration tests with emulator
+  
+  test:integration:watch:
+    run: melos exec --concurrency 1 -- "firebase emulators:start --only firestore --project test-project"
+    description: Start emulator and keep it running for manual testing
+    packageFilters:
+      dirExists: test/integration
+
+  coverage:
+    run: |
+      melos exec -- \
+        "dart test --coverage=coverage test/unit && \
+        dart pub global activate coverage && \
+        dart pub global run coverage:format_coverage \
+          --lcov \
+          --in=coverage \
+          --out=coverage/lcov.info \
+          --report-on=lib"
+    description: Generate test coverage report
+    packageFilters:
+      dirExists: test/unit
+
+  clean:
+    run: melos clean && melos exec -- "rm -rf coverage build"
+    description: Clean all build artifacts
+
+  publish:check:
+    run: melos exec -- dart pub publish --dry-run
+    description: Check if packages are ready to publish
+    packageFilters:
+      private: false
