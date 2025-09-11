@@ -1,6 +1,7 @@
-import 'dart:io';
+import 'package:firehose/src/environment.dart';
 
 /// Configuration for authentication options
+/// This class manages command-line overrides for environment configuration
 class AuthConfig {
   /// Creates an AuthConfig instance
   AuthConfig({
@@ -30,44 +31,50 @@ class AuthConfig {
   /// Whether to use Application Default Credentials
   final bool useAdc;
   
-  /// Apply this configuration to environment variables
+  /// Apply this configuration to environment variables (overrides)
   void applyToEnvironment() {
     if (projectId != null) {
-      _setEnv('FIREHOSE_PROJECT_ID', projectId!);
+      _setOverride('FIREHOSE_PROJECT_ID', projectId!);
     }
     if (emulatorHost != null) {
-      _setEnv('FIRESTORE_EMULATOR_HOST', emulatorHost!);
+      _setOverride('FIRESTORE_EMULATOR_HOST', emulatorHost!);
     }
     if (serviceAccount != null) {
-      _setEnv('FIREHOSE_SERVICE_ACCOUNT', serviceAccount!);
+      _setOverride('FIREHOSE_SERVICE_ACCOUNT', serviceAccount!);
     }
     if (clientId != null) {
-      _setEnv('FIREHOSE_CLIENT_ID', clientId!);
+      _setOverride('FIREHOSE_CLIENT_ID', clientId!);
     }
     if (clientSecret != null) {
-      _setEnv('FIREHOSE_CLIENT_SECRET', clientSecret!);
+      _setOverride('FIREHOSE_CLIENT_SECRET', clientSecret!);
     }
     if (useAdc) {
       // Clear other auth methods to force ADC
-      _removeEnv('FIREHOSE_SERVICE_ACCOUNT');
-      _removeEnv('FIREHOSE_CLIENT_ID');
-      _removeEnv('FIREHOSE_CLIENT_SECRET');
+      _removeOverride('FIREHOSE_SERVICE_ACCOUNT');
+      _removeOverride('FIREHOSE_CLIENT_ID');
+      _removeOverride('FIREHOSE_CLIENT_SECRET');
     }
   }
   
-  // Helper to set environment variable (using a map since Platform.environment is read-only)
-  static final Map<String, String> _envOverrides = {};
+  // Store command-line overrides separately from environment
+  static final Map<String, String> _cliOverrides = {};
   
-  static void _setEnv(String key, String value) {
-    _envOverrides[key] = value;
+  static void _setOverride(String key, String value) {
+    _cliOverrides[key] = value;
   }
   
-  static void _removeEnv(String key) {
-    _envOverrides.remove(key);
+  static void _removeOverride(String key) {
+    _cliOverrides.remove(key);
   }
   
-  /// Get environment variable with overrides
+  /// Get environment variable with CLI overrides taking precedence
+  /// Priority: CLI args > .env file > system environment
   static String? getEnv(String key) {
-    return _envOverrides[key] ?? Platform.environment[key];
+    // First check CLI overrides
+    if (_cliOverrides.containsKey(key)) {
+      return _cliOverrides[key];
+    }
+    // Then use Environment class which checks .env and system env
+    return Environment().get(key);
   }
 }

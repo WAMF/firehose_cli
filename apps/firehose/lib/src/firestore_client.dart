@@ -34,10 +34,11 @@ class FirestoreClient {
 
   /// Creates a Firestore client from environment configuration
   static Future<FirestoreClient> fromEnvironment() async {
+    // AuthConfig.getEnv now handles priority: CLI > .env > system env
     final projectId = AuthConfig.getEnv(projectIdEnvVar);
     if (projectId == null || projectId.isEmpty) {
       throw StateError(
-        'Project ID not set. Set $projectIdEnvVar environment variable.',
+        'Project ID not set. Set $projectIdEnvVar environment variable or in .env file.',
       );
     }
 
@@ -61,6 +62,7 @@ class FirestoreClient {
   }
 
   static Future<GoogleClient> _createGoogleClient() async {
+    // AuthConfig.getEnv now handles priority: CLI > .env > system env
     final emulatorHost = AuthConfig.getEnv(emulatorHostEnvVar);
     final serviceAccountJson = AuthConfig.getEnv(serviceAccountEnvVar);
     final clientId = AuthConfig.getEnv(clientIdEnvVar);

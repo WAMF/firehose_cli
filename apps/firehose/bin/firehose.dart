@@ -6,6 +6,7 @@ import 'package:firehose/commands/export_command.dart';
 import 'package:firehose/commands/import_command.dart';
 import 'package:firehose/commands/single_command.dart';
 import 'package:firehose/src/auth_config.dart';
+import 'package:firehose/src/environment.dart';
 
 void main(List<String> arguments) async {
   final runner =
@@ -24,6 +25,10 @@ void main(List<String> arguments) async {
       abbr: 'v',
       negatable: false,
       help: 'Show version information',
+    )
+    ..addOption(
+      'env-file',
+      help: 'Path to .env file (defaults to searching current and parent directories)',
     )
     ..addOption(
       'project-id',
@@ -58,6 +63,10 @@ void main(List<String> arguments) async {
       print('firehose version 0.1.0');
       exit(0);
     }
+
+    // Load environment configuration with optional custom path
+    final envFilePath = results['env-file'] as String?;
+    Environment().load(path: envFilePath);
 
     // Create and apply auth configuration
     String? serviceAccountJson;
