@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:firehose/src/auth_config.dart';
+import 'package:firehose/src/config_manager.dart';
 import 'package:googleapis/firestore/v1.dart';
 import 'package:kiss_firebase_repository_rest/kiss_firebase_repository_rest.dart';
 
@@ -22,9 +22,12 @@ class FirestoreClient {
 
   /// Environment variable name for OAuth client secret.
   static const String clientSecretEnvVar = 'FIREHOSE_CLIENT_SECRET';
-  
+
   /// Environment variable name for emulator host.
   static const String emulatorHostEnvVar = 'FIRESTORE_EMULATOR_HOST';
+
+  /// Google API scope for Firestore/Datastore access.
+  static const String _datastoreScope = 'https://www.googleapis.com/auth/datastore';
 
   /// The Google Cloud project ID.
   final String projectId;
@@ -34,15 +37,15 @@ class FirestoreClient {
 
   /// Creates a Firestore client from environment configuration
   static Future<FirestoreClient> fromEnvironment() async {
-    // AuthConfig.getEnv now handles priority: CLI > .env > system env
-    final projectId = AuthConfig.getEnv(projectIdEnvVar);
+    // ConfigManager.get now handles priority: CLI > .env > system env
+    final projectId = ConfigManager.get(projectIdEnvVar);
     if (projectId == null || projectId.isEmpty) {
       throw StateError(
         'Project ID not set. Set $projectIdEnvVar environment variable or in .env file.',
       );
     }
 
-    final emulatorHost = AuthConfig.getEnv(emulatorHostEnvVar);
+    final emulatorHost = ConfigManager.get(emulatorHostEnvVar);
     final googleClient = await _createGoogleClient();
     final httpClient = await googleClient.getClient();
 
@@ -62,11 +65,11 @@ class FirestoreClient {
   }
 
   static Future<GoogleClient> _createGoogleClient() async {
-    // AuthConfig.getEnv now handles priority: CLI > .env > system env
-    final emulatorHost = AuthConfig.getEnv(emulatorHostEnvVar);
-    final serviceAccountJson = AuthConfig.getEnv(serviceAccountEnvVar);
-    final clientId = AuthConfig.getEnv(clientIdEnvVar);
-    final clientSecret = AuthConfig.getEnv(clientSecretEnvVar);
+    // ConfigManager.get now handles priority: CLI > .env > system env
+    final emulatorHost = ConfigManager.get(emulatorHostEnvVar);
+    final serviceAccountJson = ConfigManager.get(serviceAccountEnvVar);
+    final clientId = ConfigManager.get(clientIdEnvVar);
+    final clientSecret = ConfigManager.get(clientSecretEnvVar);
 
     // If emulator is configured, use unauthenticated client
     if (emulatorHost != null && emulatorHost.isNotEmpty) {
@@ -78,7 +81,7 @@ class FirestoreClient {
       stdout.writeln('Using service account authentication');
       return GoogleClient(
         serviceAccountJson: serviceAccountJson,
-        scopes: ['https://www.googleapis.com/auth/datastore'],
+        scopes: [_datastoreScope],
       );
     } else if (clientId != null &&
         clientId.isNotEmpty &&
@@ -88,12 +91,12 @@ class FirestoreClient {
       return GoogleClient.userConsent(
         clientId: clientId,
         clientSecret: clientSecret,
-        scopes: ['https://www.googleapis.com/auth/datastore'],
+        scopes: [_datastoreScope],
       );
     } else {
       stdout.writeln('Using Application Default Credentials');
       return GoogleClient.defaultCredentials(
-        scopes: ['https://www.googleapis.com/auth/datastore'],
+        scopes: [_datastoreScope],
       );
     }
   }

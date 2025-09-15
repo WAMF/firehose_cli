@@ -3,6 +3,11 @@ import 'package:firehose/src/environment.dart';
 /// Configuration for authentication options
 /// This class manages command-line overrides for environment configuration
 class AuthConfig {
+  static const _projectIdKey = 'FIREHOSE_PROJECT_ID';
+  static const _emulatorHostKey = 'FIRESTORE_EMULATOR_HOST';
+  static const _serviceAccountKey = 'FIREHOSE_SERVICE_ACCOUNT';
+  static const _clientIdKey = 'FIREHOSE_CLIENT_ID';
+  static const _clientSecretKey = 'FIREHOSE_CLIENT_SECRET';
   /// Creates an AuthConfig instance
   AuthConfig({
     this.projectId,
@@ -31,28 +36,28 @@ class AuthConfig {
   /// Whether to use Application Default Credentials
   final bool useAdc;
   
-  /// Apply this configuration to environment variables (overrides)
-  void applyToEnvironment() {
+  /// Override environment variables with command-line configuration values
+  void overrideEnvironmentVariables() {
     if (projectId != null) {
-      _setOverride('FIREHOSE_PROJECT_ID', projectId!);
+      _setOverride(_projectIdKey, projectId!);
     }
     if (emulatorHost != null) {
-      _setOverride('FIRESTORE_EMULATOR_HOST', emulatorHost!);
+      _setOverride(_emulatorHostKey, emulatorHost!);
     }
     if (serviceAccount != null) {
-      _setOverride('FIREHOSE_SERVICE_ACCOUNT', serviceAccount!);
+      _setOverride(_serviceAccountKey, serviceAccount!);
     }
     if (clientId != null) {
-      _setOverride('FIREHOSE_CLIENT_ID', clientId!);
+      _setOverride(_clientIdKey, clientId!);
     }
     if (clientSecret != null) {
-      _setOverride('FIREHOSE_CLIENT_SECRET', clientSecret!);
+      _setOverride(_clientSecretKey, clientSecret!);
     }
     if (useAdc) {
       // Clear other auth methods to force ADC
-      _removeOverride('FIREHOSE_SERVICE_ACCOUNT');
-      _removeOverride('FIREHOSE_CLIENT_ID');
-      _removeOverride('FIREHOSE_CLIENT_SECRET');
+      _removeOverride(_serviceAccountKey);
+      _removeOverride(_clientIdKey);
+      _removeOverride(_clientSecretKey);
     }
   }
   
@@ -67,9 +72,9 @@ class AuthConfig {
     _cliOverrides.remove(key);
   }
   
-  /// Get environment variable with CLI overrides taking precedence
+  /// Get configuration value with CLI overrides taking precedence
   /// Priority: CLI args > .env file > system environment
-  static String? getEnv(String key) {
+  static String? getConfigValue(String key) {
     // First check CLI overrides
     if (_cliOverrides.containsKey(key)) {
       return _cliOverrides[key];

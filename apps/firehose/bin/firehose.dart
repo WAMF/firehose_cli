@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
@@ -5,7 +6,7 @@ import 'package:firehose/commands/batch_command.dart';
 import 'package:firehose/commands/export_command.dart';
 import 'package:firehose/commands/import_command.dart';
 import 'package:firehose/commands/single_command.dart';
-import 'package:firehose/src/auth_config.dart';
+import 'package:firehose/src/config_extensions.dart';
 import 'package:firehose/src/environment.dart';
 
 void main(List<String> arguments) async {
@@ -40,7 +41,7 @@ void main(List<String> arguments) async {
     )
     ..addOption(
       'service-account',
-      help: 'Path to service account JSON file',
+      help: 'Path to service account JSON file (includes project_id)',
     )
     ..addOption(
       'client-id',
@@ -49,11 +50,6 @@ void main(List<String> arguments) async {
     ..addOption(
       'client-secret',
       help: 'OAuth2 client secret for user consent flow',
-    )
-    ..addFlag(
-      'use-adc',
-      help: 'Use Application Default Credentials',
-      negatable: false,
     );
 
   try {
@@ -70,6 +66,7 @@ void main(List<String> arguments) async {
 
     // Create and apply auth configuration
     String? serviceAccountJson;
+    String? extractedProjectId;
     if (results['service-account'] != null) {
       final file = File(results['service-account'] as String);
       if (!file.existsSync()) {
@@ -77,16 +74,25 @@ void main(List<String> arguments) async {
         exit(1);
       }
       serviceAccountJson = file.readAsStringSync();
+
+      // Extract project ID from service account JSON if not provided via CLI
+      if (results['project-id'] == null) {
+        try {
+          final serviceAccountData = json.decode(serviceAccountJson) as Map<String, dynamic>;
+          extractedProjectId = serviceAccountData['project_id'] as String?;
+        } catch (e) {
+          stderr.writeln('Error parsing service account JSON: $e');
+        }
+      }
     }
-    
-    AuthConfig(
-      projectId: results['project-id'] as String?,
+
+    AuthConfigExtension.setAuthenticationOverrides(
+      projectId: results['project-id'] as String? ?? extractedProjectId,
       emulatorHost: results['emulator-host'] as String?,
       serviceAccount: serviceAccountJson,
       clientId: results['client-id'] as String?,
       clientSecret: results['client-secret'] as String?,
-      useAdc: results['use-adc'] as bool,
-    ).applyToEnvironment();
+    );
     
     await runner.runCommand(results);
   } on UsageException catch (e) {
