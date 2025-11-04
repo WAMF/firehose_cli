@@ -2,6 +2,8 @@
 
 A command-line tool for reading and writing Firestore data with JSON I/O. Designed to be non-interactive, deterministic, and safe by default with dry-run mode.
 
+**Perfect for AI agents and automation:** Deterministic behavior, JSON I/O, no interactive prompts, clear exit codes.
+
 ## Installation
 
 ### As a Dart package (recommended)
@@ -25,17 +27,12 @@ Authentication can be configured via environment variables or command-line flags
 
 ### Authentication Methods
 
-#### Option 1: Firestore Emulator (for testing)
-```bash
-# Via environment variables
-export FIREHOSE_PROJECT_ID="test-project"
-export FIRESTORE_EMULATOR_HOST="localhost:8080"
+#### Option 1: Service Account (recommended for automation & AI agents)
 
-# Or via command-line flags
-firehose --project-id test-project --emulator-host localhost:8080 <command>
-```
+**Best for:** CI/CD pipelines, scripts, AI agents, server-side automation
 
-#### Option 2: Service Account (recommended for automation)
+Service accounts provide non-interactive authentication, making them ideal for automated workflows.
+
 ```bash
 # Via environment variable
 export FIREHOSE_PROJECT_ID="your-project-id"
@@ -45,24 +42,72 @@ export FIREHOSE_SERVICE_ACCOUNT='{"type":"service_account",...}'
 firehose --project-id your-project-id --service-account service-account.json <command>
 ```
 
-#### Option 3: OAuth2 User Consent (for CLI usage)
+**Setup:**
+1. Go to [Google Cloud Console](https://console.cloud.google.com) → IAM & Admin → Service Accounts
+2. Create a service account with Firestore permissions (Cloud Datastore User or Owner)
+3. Create and download a JSON key
+4. Use the JSON file path or inline JSON in the environment variable
+
+#### Option 2: OAuth2 User Consent (interactive CLI usage)
+
+**Best for:** Individual developers running commands manually
+
+**Note:** This method requires browser interaction to grant permissions. It is **NOT suitable for AI agents or automation** as it requires human interaction.
+
 ```bash
 # Via environment variables
 export FIREHOSE_PROJECT_ID="your-project-id"
-export FIREHOSE_CLIENT_ID="your-client-id"
+export FIREHOSE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
 export FIREHOSE_CLIENT_SECRET="your-client-secret"
 
 # Or via command-line flags
 firehose --project-id your-project-id --client-id your-client-id --client-secret your-secret <command>
 ```
 
-#### Option 4: Application Default Credentials
+**Setup:**
+1. Go to [Google Cloud Console](https://console.cloud.google.com) → APIs & Credentials
+2. Create OAuth 2.0 Client ID → Desktop application
+3. Download credentials and extract `client_id` and `client_secret`
+4. On first use, you'll be prompted to visit a URL and grant permissions in your browser
+
+**Authentication flow:**
+- First command prompts you to visit an authorization URL
+- You log in with your Google account and grant Firestore access
+- Subsequent commands use cached credentials (until they expire)
+
+#### Option 3: Application Default Credentials (local development)
+
+**Best for:** Developers with gcloud CLI configured
+
+Uses credentials from `gcloud auth application-default login`. No additional configuration needed.
+
 ```bash
 # Via environment variable
 export FIREHOSE_PROJECT_ID="your-project-id"
 
 # Or via command-line flag
-firehose --project-id your-project-id --use-adc <command>
+firehose --project-id your-project-id <command>
+```
+
+**Setup:**
+```bash
+gcloud auth application-default login
+```
+
+#### Option 4: Firestore Emulator (testing)
+
+**Best for:** Testing without hitting production Firestore
+
+```bash
+# Start the emulator first
+firebase emulators:start --only firestore
+
+# Then use firehose
+export FIREHOSE_PROJECT_ID="test-project"
+export FIRESTORE_EMULATOR_HOST="localhost:8080"
+
+# Or via command-line flags
+firehose --project-id test-project --emulator-host localhost:8080 <command>
 ```
 
 ## Commands
@@ -201,3 +246,60 @@ Example JSON files are provided in `test_data/`:
 - `single_document.json`: Single document example
 - `batch_documents.json`: Array of documents with some having IDs
 - `import_collections.json`: Multi-collection import structure
+
+## AI Agent Usage
+
+This tool is specifically designed to work well with AI agents and automation:
+
+### Key Features for AI Agents
+
+1. **Non-interactive**: All operations can be configured via flags and environment variables
+2. **Deterministic**: Same input always produces same output
+3. **JSON I/O**: Native JSON format for easy integration
+4. **Dry-run by default**: Safe exploration without side effects
+5. **Clear exit codes**: 0 (success), 1 (operation failed), 2 (config error), 64 (usage error)
+6. **Structured output**: Parseable summaries and error messages
+
+### Recommended Authentication for AI Agents
+
+**Use Service Account authentication** (Option 1 in Configuration section above):
+
+```bash
+# Set environment variables
+export FIREHOSE_PROJECT_ID="your-project-id"
+export FIREHOSE_SERVICE_ACCOUNT="$(cat service-account.json)"
+
+# Or use file path
+firehose --project-id your-project-id --service-account service-account.json <command>
+```
+
+**Do NOT use OAuth2 User Consent** (Option 2) - it requires browser interaction and is not suitable for automation.
+
+### Example AI Agent Workflow
+
+```bash
+# 1. Prepare JSON data programmatically
+echo '{"name": "John Doe", "email": "john@example.com"}' > user.json
+
+# 2. Preview the operation (dry-run)
+firehose single --path users/user123 --file user.json --verbose
+
+# 3. If valid, apply the operation
+firehose single --path users/user123 --file user.json --apply
+
+# 4. Check exit code
+if [ $? -eq 0 ]; then
+  echo "Success"
+else
+  echo "Failed"
+fi
+```
+
+### Configuration Priority
+
+When multiple configuration sources are present:
+1. **CLI flags** (highest priority)
+2. **.env file** (auto-discovered in current and parent directories)
+3. **System environment variables** (lowest priority)
+
+This allows AI agents to override default configurations easily.
