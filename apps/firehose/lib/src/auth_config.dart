@@ -1,4 +1,4 @@
-import 'package:firehose/src/environment.dart';
+import 'package:firehose_cli/src/environment.dart';
 
 /// Configuration for authentication options
 /// This class manages command-line overrides for environment configuration

@@ -1,4 +1,4 @@
-import 'package:firehose/src/environment.dart';
+import 'package:firehose_cli/src/environment.dart';
 
 /// Manages application configuration with support for multiple override sources
 /// Priority: CLI arguments > .env file > system environment variables

@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:firehose/src/firestore_client.dart';
-import 'package:firehose/src/operation_result.dart';
-import 'package:firehose/src/validation.dart';
+import 'package:firehose_cli/src/firestore_client.dart';
+import 'package:firehose_cli/src/operation_result.dart';
+import 'package:firehose_cli/src/validation.dart';
 import 'package:googleapis/firestore/v1.dart';
 import 'package:kiss_firebase_repository_rest/kiss_firebase_repository_rest.dart';
 

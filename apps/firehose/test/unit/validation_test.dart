@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:firehose/src/validation.dart';
+import 'package:firehose_cli/src/validation.dart';
 import 'package:test/test.dart';
 
 void main() {

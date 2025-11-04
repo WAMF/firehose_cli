@@ -1,0 +1,9 @@
+Makefile
+firestore-debug.log
+firebase-debug.log
+ui-debug.log
+*.iml
+.idea/
+.vscode/
+coverage/
+.dart_tool/

@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:firehose/commands/batch_command.dart';
-import 'package:firehose/commands/export_command.dart';
-import 'package:firehose/commands/import_command.dart';
-import 'package:firehose/commands/single_command.dart';
-import 'package:firehose/src/config_extensions.dart';
-import 'package:firehose/src/environment.dart';
+import 'package:firehose_cli/commands/batch_command.dart';
+import 'package:firehose_cli/commands/export_command.dart';
+import 'package:firehose_cli/commands/import_command.dart';
+import 'package:firehose_cli/commands/single_command.dart';
+import 'package:firehose_cli/src/config_extensions.dart';
+import 'package:firehose_cli/src/environment.dart';
 
 void main(List<String> arguments) async {
   final runner =

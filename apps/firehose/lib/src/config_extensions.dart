@@ -1,4 +1,4 @@
-import 'package:firehose/src/config_manager.dart';
+import 'package:firehose_cli/src/config_manager.dart';
 
 /// Authentication-specific configuration utilities
 class AuthConfigExtension {

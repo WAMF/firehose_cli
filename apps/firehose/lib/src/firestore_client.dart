@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:firehose/src/config_manager.dart';
+import 'package:firehose_cli/src/config_manager.dart';
 import 'package:googleapis/firestore/v1.dart';
 import 'package:kiss_firebase_repository_rest/kiss_firebase_repository_rest.dart';
 
