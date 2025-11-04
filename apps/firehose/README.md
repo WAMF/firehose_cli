@@ -7,13 +7,13 @@ A command-line tool for reading and writing Firestore data with JSON I/O. Design
 ### As a Dart package (recommended)
 
 ```bash
-dart pub global activate firehose
+dart pub global activate firehose_cli
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/yourusername/firehose_cli.git
+git clone https://github.com/WAMF/firehose_cli.git
 cd firehose_cli/apps/firehose
 dart pub get
 dart compile exe bin/firehose.dart -o firehose
