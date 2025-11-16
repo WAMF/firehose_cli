@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:firehose_cli/commands/batch_command.dart';
+import 'package:firehose_cli/commands/delete_command.dart';
 import 'package:firehose_cli/commands/export_command.dart';
 import 'package:firehose_cli/commands/import_command.dart';
 import 'package:firehose_cli/commands/single_command.dart';
@@ -18,7 +19,8 @@ void main(List<String> arguments) async {
         ..addCommand(SingleCommand())
         ..addCommand(BatchCommand())
         ..addCommand(ImportCommand())
-        ..addCommand(ExportCommand());
+        ..addCommand(ExportCommand())
+        ..addCommand(DeleteCommand());
 
   runner.argParser
     ..addFlag(
@@ -69,7 +71,7 @@ void main(List<String> arguments) async {
     final results = runner.parse(arguments);
 
     if (results['version'] as bool) {
-      print('firehose version 0.3.0');
+      print('firehose version 0.4.0');
       exit(0);
     }
 
@@ -109,8 +111,9 @@ void main(List<String> arguments) async {
       clientId: results['client-id'] as String?,
       clientSecret: results['client-secret'] as String?,
     );
-    
-    await runner.runCommand(results);
+
+    final exitCode = await runner.runCommand(results);
+    exit(exitCode ?? 0);
   } on UsageException catch (e) {
     stderr.writeln(e.message);
     print('\n${e.usage}');

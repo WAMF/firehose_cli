@@ -18,6 +18,9 @@ class OperationResult {
   /// Number of documents read.
   int read = 0;
 
+  /// Number of documents deleted.
+  int deleted = 0;
+
   /// Number of bytes written to output.
   int bytesWritten = 0;
 
@@ -87,6 +90,17 @@ class OperationResult {
     );
   }
 
+  /// Adds a deleted document to the result.
+  void addDeleted(String path) {
+    deleted++;
+    details.add(
+      OperationDetail(
+        type: OperationType.deleted,
+        path: path,
+      ),
+    );
+  }
+
   /// Gets the total number of operations.
   int get total => created + updated + skipped + failed;
 
@@ -104,6 +118,7 @@ class OperationResult {
       parts.add('Created: $created${autoId > 0 ? ' ($autoId auto-ID)' : ''}');
     }
     if (updated > 0) parts.add('Updated: $updated');
+    if (deleted > 0) parts.add('Deleted: $deleted');
     if (skipped > 0) parts.add('Skipped: $skipped');
     if (failed > 0) parts.add('Failed: $failed');
     if (read > 0) parts.add('Read: $read');
@@ -170,6 +185,8 @@ class OperationDetail {
         return autoId ? '⚡' : '✓';
       case OperationType.updated:
         return '↻';
+      case OperationType.deleted:
+        return '🗑';
       case OperationType.skipped:
         return '⊘';
       case OperationType.failed:
@@ -187,6 +204,9 @@ enum OperationType {
 
   /// Document was updated.
   updated,
+
+  /// Document was deleted.
+  deleted,
 
   /// Document was skipped.
   skipped,

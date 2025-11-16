@@ -218,6 +218,31 @@ firehose export --path users --output users.json --limit 100
 firehose export --path users/user123 --output user.json
 ```
 
+### delete - Delete documents from Firestore
+
+```bash
+# Delete a single document (dry run)
+firehose delete --path users/user123
+
+# Delete a single document (apply)
+firehose delete --path users/user123 --apply
+
+# Delete all documents in a collection (requires --recursive)
+firehose delete --path users --recursive --apply
+
+# Batch delete from a file containing an array of document paths
+firehose delete --path users --file paths_to_delete.json --apply
+```
+
+Expected file format for batch delete:
+```json
+[
+  "users/user1",
+  "users/user2",
+  "users/user3"
+]
+```
+
 ## Global Options
 
 ### Authentication Flags

@@ -1,3 +1,12 @@
+## 0.4.0
+
+* **Delete Command**: Added comprehensive delete functionality for Firestore documents
+  * Single document deletion: `delete --path users/user1 --apply`
+  * Recursive collection deletion: `delete --path users --recursive --apply`
+  * Batch deletion from file: `delete --path users --file paths.json --apply`
+  * Dry-run mode by default for safety
+  * Full integration test coverage
+
 ## 0.3.0
 
 * **Database Selection Support**: Added support for selecting custom Firestore databases
