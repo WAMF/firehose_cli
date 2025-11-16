@@ -3,6 +3,7 @@ import 'package:firehose_cli/src/config_manager.dart';
 /// Authentication-specific configuration utilities
 class AuthConfigExtension {
   static const _projectIdKey = 'FIREHOSE_PROJECT_ID';
+  static const _databaseKey = 'FIREHOSE_DATABASE';
   static const _emulatorHostKey = 'FIRESTORE_EMULATOR_HOST';
   static const _emulatorAuthTokenKey = 'FIREHOSE_EMULATOR_AUTH_TOKEN';
   static const _emulatorNoAuthKey = 'FIREHOSE_EMULATOR_NO_AUTH';
@@ -13,6 +14,7 @@ class AuthConfigExtension {
   /// Set authentication-related configuration overrides
   static void setAuthenticationOverrides({
     String? projectId,
+    String? database,
     String? emulatorHost,
     String? emulatorAuthToken,
     bool? emulatorNoAuth,
@@ -22,6 +24,9 @@ class AuthConfigExtension {
   }) {
     if (projectId != null) {
       ConfigManager.setOverride(_projectIdKey, projectId);
+    }
+    if (database != null) {
+      ConfigManager.setOverride(_databaseKey, database);
     }
     if (emulatorHost != null) {
       ConfigManager.setOverride(_emulatorHostKey, emulatorHost);

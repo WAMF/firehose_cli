@@ -36,6 +36,10 @@ void main(List<String> arguments) async {
       help: 'Google Cloud project ID (overrides FIREHOSE_PROJECT_ID)',
     )
     ..addOption(
+      'database',
+      help: 'Firestore database name (defaults to "(default)")',
+    )
+    ..addOption(
       'emulator-host',
       help: 'Firestore emulator host (e.g., localhost:8080)',
     )
@@ -65,7 +69,7 @@ void main(List<String> arguments) async {
     final results = runner.parse(arguments);
 
     if (results['version'] as bool) {
-      print('firehose version 0.2.0');
+      print('firehose version 0.3.0');
       exit(0);
     }
 
@@ -97,6 +101,7 @@ void main(List<String> arguments) async {
 
     AuthConfigExtension.setAuthenticationOverrides(
       projectId: results['project-id'] as String? ?? extractedProjectId,
+      database: results['database'] as String?,
       emulatorHost: results['emulator-host'] as String?,
       emulatorAuthToken: results['emulator-auth-token'] as String?,
       emulatorNoAuth: results['emulator-no-auth'] as bool?,

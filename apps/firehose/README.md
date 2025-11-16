@@ -133,6 +133,21 @@ Environment variables:
 - `FIREHOSE_EMULATOR_AUTH_TOKEN` - Custom authentication token
 - `FIREHOSE_EMULATOR_NO_AUTH=true` - Disable authentication
 
+### Database Selection
+
+By default, firehose connects to the `(default)` database. To use a named database:
+
+```bash
+# Via CLI flag
+firehose --database my-database single --path users/user1 --file user.json --apply
+
+# Via environment variable
+export FIREHOSE_DATABASE="my-database"
+firehose single --path users/user1 --file user.json --apply
+```
+
+This allows you to work with multiple databases within the same Firestore project.
+
 ## Commands
 
 ### single - Write one document from a JSON file

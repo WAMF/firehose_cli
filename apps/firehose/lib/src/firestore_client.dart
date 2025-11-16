@@ -10,6 +10,7 @@ import 'package:kiss_firebase_repository_rest/kiss_firebase_repository_rest.dart
 class FirestoreClient {
   FirestoreClient._({
     required this.projectId,
+    required this.database,
     required this.firestore,
   });
 
@@ -34,11 +35,20 @@ class FirestoreClient {
   /// Environment variable name to disable emulator auth.
   static const String emulatorNoAuthEnvVar = 'FIREHOSE_EMULATOR_NO_AUTH';
 
+  /// Environment variable name for database name.
+  static const String databaseEnvVar = 'FIREHOSE_DATABASE';
+
+  /// Default database name.
+  static const String defaultDatabase = '(default)';
+
   /// Google API scope for Firestore/Datastore access.
   static const String _datastoreScope = 'https://www.googleapis.com/auth/datastore';
 
   /// The Google Cloud project ID.
   final String projectId;
+
+  /// The database name.
+  final String database;
 
   /// The Firestore API client.
   final FirestoreApi firestore;
@@ -53,6 +63,7 @@ class FirestoreClient {
       );
     }
 
+    final database = ConfigManager.get(databaseEnvVar) ?? defaultDatabase;
     final emulatorHost = ConfigManager.get(emulatorHostEnvVar);
 
     if (emulatorHost != null && emulatorHost.isNotEmpty) {
@@ -72,6 +83,7 @@ class FirestoreClient {
 
       return FirestoreClient._(
         projectId: projectId,
+        database: database,
         firestore: FirestoreApi(httpClient, rootUrl: 'http://$emulatorHost/'),
       );
     }
@@ -81,6 +93,7 @@ class FirestoreClient {
 
     return FirestoreClient._(
       projectId: projectId,
+      database: database,
       firestore: FirestoreApi(httpClient),
     );
   }
@@ -146,7 +159,7 @@ class FirestoreClient {
   }
 
   /// Gets the database path for this project.
-  String get databasePath => 'projects/$projectId/databases/(default)';
+  String get databasePath => 'projects/$projectId/databases/$database';
 
   /// Gets the full document path for a given relative path.
   String documentPath(String path) => '$databasePath/documents/$path';

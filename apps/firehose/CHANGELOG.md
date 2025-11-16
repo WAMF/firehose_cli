@@ -1,3 +1,10 @@
+## 0.3.0
+
+* **Database Selection Support**: Added support for selecting custom Firestore databases
+  * `--database` flag: Specify database name (defaults to "(default)")
+  * Environment variable support: `FIREHOSE_DATABASE`
+  * Enables working with named databases in addition to the default database
+
 ## 0.2.0
 
 * **Firebase Emulator Authentication Support**: Added comprehensive authentication support for Firebase Firestore Emulator
