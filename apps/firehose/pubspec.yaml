@@ -1,6 +1,6 @@
 name: firehose_cli
 description: CLI tool for reading/writing Firestore with JSON I/O
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/WAMF/firehose_cli
 repository: https://github.com/WAMF/firehose_cli
 

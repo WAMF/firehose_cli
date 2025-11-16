@@ -40,6 +40,15 @@ void main(List<String> arguments) async {
       help: 'Firestore emulator host (e.g., localhost:8080)',
     )
     ..addOption(
+      'emulator-auth-token',
+      help: 'Custom auth token for emulator (overrides default "Bearer owner")',
+    )
+    ..addFlag(
+      'emulator-no-auth',
+      negatable: false,
+      help: 'Disable auth for emulator (test unauthenticated access)',
+    )
+    ..addOption(
       'service-account',
       help: 'Path to service account JSON file (includes project_id)',
     )
@@ -89,6 +98,8 @@ void main(List<String> arguments) async {
     AuthConfigExtension.setAuthenticationOverrides(
       projectId: results['project-id'] as String? ?? extractedProjectId,
       emulatorHost: results['emulator-host'] as String?,
+      emulatorAuthToken: results['emulator-auth-token'] as String?,
+      emulatorNoAuth: results['emulator-no-auth'] as bool?,
       serviceAccount: serviceAccountJson,
       clientId: results['client-id'] as String?,
       clientSecret: results['client-secret'] as String?,

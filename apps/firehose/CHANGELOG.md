@@ -1,3 +1,13 @@
+## 0.2.0
+
+* **Firebase Emulator Authentication Support**: Added comprehensive authentication support for Firebase Firestore Emulator
+  * `Bearer owner` mode (default): Bypasses security rules for seeding data
+  * Custom token mode: Test with specific authentication tokens via `--emulator-auth-token`
+  * No-auth mode: Test unauthenticated access with `--emulator-no-auth`
+  * Environment variable support: `FIREHOSE_EMULATOR_AUTH_TOKEN`, `FIREHOSE_EMULATOR_NO_AUTH`
+* **Improved Logging**: Separated data output (stdout) from operational logs (stderr) for cleaner JSON output
+* **Test Infrastructure**: Added integration tests for emulator authentication modes with security rules validation
+
 ## 0.1.0
 
 * Initial release

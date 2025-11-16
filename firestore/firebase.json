@@ -1,4 +1,7 @@
 {
+  "firestore": {
+    "rules": "firestore.test.rules"
+  },
   "emulators": {
     "firestore": {
       "port": 8090

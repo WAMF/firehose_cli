@@ -41,6 +41,10 @@ class EmulatorHelper {
       }
     }
 
+    await Process.run('pkill', ['-f', 'firebase emulators']);
+    await Process.run('pkill', ['-f', 'java.*firestore']);
+    await Future<void>.delayed(const Duration(seconds: 2));
+
     print('Starting Firestore emulator...');
     _emulatorProcess = await Process.start(
       'firebase',

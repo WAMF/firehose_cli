@@ -110,6 +110,29 @@ export FIRESTORE_EMULATOR_HOST="localhost:8080"
 firehose --project-id test-project --emulator-host localhost:8080 <command>
 ```
 
+**Emulator Authentication Modes:**
+
+By default, firehose uses `Bearer owner` to bypass security rules (ideal for seeding data):
+
+```bash
+# Default: bypasses security rules
+firehose --emulator-host localhost:8080 single --path users/user1 --file user.json --apply
+```
+
+To test with security rules enabled:
+
+```bash
+# Test with a custom auth token
+firehose --emulator-auth-token "your-custom-token" single --path users/user1 --file user.json --apply
+
+# Test unauthenticated access (will be blocked by rules requiring auth)
+firehose --emulator-no-auth single --path users/user1 --file user.json --apply
+```
+
+Environment variables:
+- `FIREHOSE_EMULATOR_AUTH_TOKEN` - Custom authentication token
+- `FIREHOSE_EMULATOR_NO_AUTH=true` - Disable authentication
+
 ## Commands
 
 ### single - Write one document from a JSON file

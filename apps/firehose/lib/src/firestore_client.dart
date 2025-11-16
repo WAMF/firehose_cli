@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:firehose_cli/src/config_manager.dart';
+import 'package:firehose_cli/src/emulator_auth_client.dart';
 import 'package:googleapis/firestore/v1.dart';
+import 'package:http/http.dart' as http;
 import 'package:kiss_firebase_repository_rest/kiss_firebase_repository_rest.dart';
 
 /// Manages Firestore client configuration and connection
@@ -26,6 +28,12 @@ class FirestoreClient {
   /// Environment variable name for emulator host.
   static const String emulatorHostEnvVar = 'FIRESTORE_EMULATOR_HOST';
 
+  /// Environment variable name for emulator auth token.
+  static const String emulatorAuthTokenEnvVar = 'FIREHOSE_EMULATOR_AUTH_TOKEN';
+
+  /// Environment variable name to disable emulator auth.
+  static const String emulatorNoAuthEnvVar = 'FIREHOSE_EMULATOR_NO_AUTH';
+
   /// Google API scope for Firestore/Datastore access.
   static const String _datastoreScope = 'https://www.googleapis.com/auth/datastore';
 
@@ -46,17 +54,30 @@ class FirestoreClient {
     }
 
     final emulatorHost = ConfigManager.get(emulatorHostEnvVar);
-    final googleClient = await _createGoogleClient();
-    final httpClient = await googleClient.getClient();
 
-    // If emulator host is set, use it
     if (emulatorHost != null && emulatorHost.isNotEmpty) {
-      stdout.writeln('Using Firestore emulator at $emulatorHost');
+      stderr.writeln('Using Firestore emulator at $emulatorHost');
+
+      final authMode = _getEmulatorAuthMode();
+      final customToken = ConfigManager.get(emulatorAuthTokenEnvVar);
+
+      final baseClient = http.Client();
+      final httpClient = EmulatorAuthClient(
+        innerClient: baseClient,
+        authMode: authMode,
+        customToken: customToken,
+      );
+
+      _logEmulatorAuthMode(authMode, customToken);
+
       return FirestoreClient._(
         projectId: projectId,
         firestore: FirestoreApi(httpClient, rootUrl: 'http://$emulatorHost/'),
       );
     }
+
+    final googleClient = await _createGoogleClient();
+    final httpClient = await googleClient.getClient();
 
     return FirestoreClient._(
       projectId: projectId,
@@ -65,20 +86,12 @@ class FirestoreClient {
   }
 
   static Future<GoogleClient> _createGoogleClient() async {
-    // ConfigManager.get now handles priority: CLI > .env > system env
-    final emulatorHost = ConfigManager.get(emulatorHostEnvVar);
     final serviceAccountJson = ConfigManager.get(serviceAccountEnvVar);
     final clientId = ConfigManager.get(clientIdEnvVar);
     final clientSecret = ConfigManager.get(clientSecretEnvVar);
 
-    // If emulator is configured, use unauthenticated client
-    if (emulatorHost != null && emulatorHost.isNotEmpty) {
-      stdout.writeln('Using unauthenticated client for emulator');
-      return GoogleClient.unauthenticated();
-    }
-
     if (serviceAccountJson != null && serviceAccountJson.isNotEmpty) {
-      stdout.writeln('Using service account authentication');
+      stderr.writeln('Using service account authentication');
       return GoogleClient(
         serviceAccountJson: serviceAccountJson,
         scopes: [_datastoreScope],
@@ -87,17 +100,48 @@ class FirestoreClient {
         clientId.isNotEmpty &&
         clientSecret != null &&
         clientSecret.isNotEmpty) {
-      stdout.writeln('Using OAuth2 user consent authentication');
+      stderr.writeln('Using OAuth2 user consent authentication');
       return GoogleClient.userConsent(
         clientId: clientId,
         clientSecret: clientSecret,
         scopes: [_datastoreScope],
       );
     } else {
-      stdout.writeln('Using Application Default Credentials');
+      stderr.writeln('Using Application Default Credentials');
       return GoogleClient.defaultCredentials(
         scopes: [_datastoreScope],
       );
+    }
+  }
+
+  static EmulatorAuthMode _getEmulatorAuthMode() {
+    final noAuth = ConfigManager.get(emulatorNoAuthEnvVar);
+    final customToken = ConfigManager.get(emulatorAuthTokenEnvVar);
+
+    if (noAuth != null && noAuth.toLowerCase() == 'true') {
+      return EmulatorAuthMode.noAuth;
+    }
+
+    if (customToken != null && customToken.isNotEmpty) {
+      return EmulatorAuthMode.customToken;
+    }
+
+    return EmulatorAuthMode.bypassRules;
+  }
+
+  static void _logEmulatorAuthMode(
+    EmulatorAuthMode mode,
+    String? customToken,
+  ) {
+    switch (mode) {
+      case EmulatorAuthMode.bypassRules:
+        stderr.writeln('Emulator auth: Bypassing security rules (Bearer owner)');
+      case EmulatorAuthMode.customToken:
+        stderr.writeln(
+          'Emulator auth: Using custom token (Bearer ${customToken!.substring(0, customToken.length > 10 ? 10 : customToken.length)}...)',
+        );
+      case EmulatorAuthMode.noAuth:
+        stderr.writeln('Emulator auth: No authentication (testing unauthenticated access)');
     }
   }
 

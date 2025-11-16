@@ -29,16 +29,14 @@ scripts:
 
   test:integration:
     run: |
-      cd apps/firehose && \
+      cd firestore && \
       firebase emulators:exec --only firestore --project test-project \
-      "dart test test/integration_test.dart --concurrency=1"
+      "cd ../apps/firehose && dart test test/integration_test.dart test/integration --concurrency=1"
     description: Run integration tests with emulator
-  
+
   test:integration:watch:
-    run: melos exec --concurrency 1 -- "firebase emulators:start --only firestore --project test-project"
+    run: cd firestore && firebase emulators:start --only firestore --project test-project
     description: Start emulator and keep it running for manual testing
-    packageFilters:
-      dirExists: test/integration
 
   coverage:
     run: |
