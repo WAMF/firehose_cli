@@ -65,7 +65,7 @@ void main(List<String> arguments) async {
     final results = runner.parse(arguments);
 
     if (results['version'] as bool) {
-      print('firehose version 0.1.0');
+      print('firehose version 0.2.0');
       exit(0);
     }
 
